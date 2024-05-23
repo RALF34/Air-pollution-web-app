@@ -19,7 +19,7 @@ def load_data():
     cities = locations[
         ["city","station","coordinates"]].groupby("city")
     list_of_df = []
-    for x in ["A","B","C","D"]:
+    for x in ["A","B","C","D","E","F"]:
         list_of_df.append(pd.read_csv(f"data/dataset_{x}.csv"))
     data = pd.concat(list_of_df, ignore_index=True)
     columns = data.columns[:-1]
