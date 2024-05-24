@@ -70,7 +70,7 @@ def get_items(where, group):
 
     dictionary = load_data()
     data = dictionary[where]
-    if where == "regions" and not(group):
+    if group == "REGIONS":
         items = list(data.groups.keys())
         for e in OVERSEAS_DEPARTMENTS:
             items.remove(e)
