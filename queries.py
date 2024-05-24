@@ -71,21 +71,22 @@ def get_items(where, group):
     dictionary = load_data()
     data = dictionary[where]
     items = [""]
-    if group == "REGIONS":
-        items = list(data.groups.keys())
-        for e in OVERSEAS_DEPARTMENTS:
-            items.remove(e)
-        items.append("OUTRE-MER")
-    elif group == "OUTRE-MER":
-            items = OVERSEAS_DEPARTMENTS
-    else:
-        data = data.get_group(group)
-        if where == "cities":
-            items = list(zip(
-                data["station"].to_list(),
-                data["coordinates"].to_list()))
+    if group:
+        if group == "REGIONS":
+            items = list(data.groups.keys())
+            for e in OVERSEAS_DEPARTMENTS:
+                items.remove(e)
+            items.append("OUTRE-MER")
+        elif group == "OUTRE-MER":
+                items = OVERSEAS_DEPARTMENTS
         else:
-            items = data.to_list()
-            if where == "distribution_pollutants":
-                items = [e+" pollution" for e in items]
+            data = data.get_group(group)
+            if where == "cities":
+                items = list(zip(
+                    data["station"].to_list(),
+                    data["coordinates"].to_list()))
+            else:
+                items = data.to_list()
+                if where == "distribution_pollutants":
+                    items = [e+" pollution" for e in items]
     return items
