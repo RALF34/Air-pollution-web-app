@@ -57,12 +57,12 @@ with col1:
 
     kwargs = {"index": None, "placeholder": ""}
         
-    region = st.selectbox(
-        "Select a French region",
-        queries.get_items("regions", ""),
-        **kwargs)
-            
     try:
+        region = st.selectbox(
+            "Select a French region",
+            queries.get_items("regions", ""),
+            **kwargs)
+            
         department = st.selectbox(
             "Select a French department",
             queries.get_items("regions", region),
