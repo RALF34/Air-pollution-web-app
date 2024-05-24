@@ -61,57 +61,54 @@ with col1:
         "Select a French region",
         queries.get_items("regions", "REGIONS"),
         **kwargs)
+    
+    department = st.selectbox(
+        "Select a French department",
+        queries.get_items("regions", region),
+        **kwargs)
             
-    try:
-        department = st.selectbox(
-            "Select a French department",
-            queries.get_items("regions", region),
-            **kwargs)
+    city = st.selectbox(
+        "Select a French city",
+        queries.get_items("departments", department),
+        **kwargs)
             
-        city = st.selectbox(
-            "Select a French city",
-            queries.get_items("departments", department),
-            **kwargs)
+    station = st.selectbox(
+        "Select a station",
+        [e[0] for e in queries.get_items("cities", city)],
+        **kwargs)
             
-        station = st.selectbox(
-            "Select a station",
-            [e[0] for e in queries.get_items("cities", city)],
-            **kwargs)
-            
-        if station not in queries.get_stations():
-            st.error("Sorry, no data available for this station.")
+    if station not in queries.get_stations():
+        st.error("Sorry, no data available for this station.")
+        st.stop()
+    else:
+        pollution = st.selectbox(
+            "Select a type of pollution",
+            queries.get_items(
+                "distribution_pollutants",
+                station),
+                **kwargs)
+                
+        pollutant = pollution.split()[0]
+
+        data = queries.get_data(station, pollutant)
+        for i, gb in enumerate([e.groupby("hour") for e in data]):
+            st.session_state["current_data"][i] = gb
+        update_values()
+                
+        if st.session_state["no_data"]:
+            st.error("No pollution data are available for the given period.")
             st.stop()
         else:
-            pollution = st.selectbox(
-                "Select a type of pollution",
-                queries.get_items(
-                    "distribution_pollutants",
-                    station),
-                    **kwargs)
-                
-            pollutant = pollution.split()[0]
-
-            data = queries.get_data(station, pollutant)
-            for i, gb in enumerate([e.groupby("hour") for e in data]):
-                st.session_state["current_data"][i] = gb
-            update_values()
-                
-            if st.session_state["no_data"]:
-                st.error("No pollution data are available for the given period.")
-                st.stop()
-            else:
-                starting_date = st.slider(
-                    "When does the air pollution analysis start?",
-                    ending_date-timedelta(days=180),
-                    ending_date,
-                    ending_date-timedelta(days=90),
-                    format="DD/MM/YY",
-                    key="starting_date",
-                    on_change=update_values)
-                st.pyplot(
-                    visualization.plot_variation(
-                        st.session_state["y-values"],
-                        pollutant,
-                        station))
-    except:
-        st.stop()
+            starting_date = st.slider(
+                "When does the air pollution analysis start?",
+                ending_date-timedelta(days=180),
+                ending_date,
+                ending_date-timedelta(days=90),
+                format="DD/MM/YY",
+                key="starting_date",
+                on_change=update_values)
+            st.pyplot(
+                visualization.plot_variation(
+                    st.session_state["y-values"],
+                    pollutant,
+                    station))
