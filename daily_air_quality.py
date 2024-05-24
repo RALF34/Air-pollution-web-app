@@ -72,9 +72,12 @@ with col1:
         queries.get_items("departments", department),
         **kwargs)
             
+    names = (
+        [""] if not(city) else 
+        [e[0] for e in queries.get_items("cities", city)])
     station = st.selectbox(
         "Select a station",
-        [e[0] for e in queries.get_items("cities", city)],
+        names,
         **kwargs)
             
     if station not in queries.get_stations():
