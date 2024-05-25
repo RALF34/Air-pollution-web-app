@@ -45,8 +45,7 @@ def load_data():
 def get_stations():
     dictionary = load_data()
     return list(
-        dictionary["distribution_pollutants"]
-    ).groups.keys()
+        dictionary["distribution_pollutants"].groups.keys())
 
 def get_data(s, p):
     '''
