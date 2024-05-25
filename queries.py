@@ -41,6 +41,13 @@ def load_data():
         "working_days": working_days,
         "weekends": weekends}
 
+
+def get_stations():
+    dictionary = load_data()
+    return list(
+        dictionary["distribution_pollutants"]
+    ).groups.keys()
+
 def get_data(s, p):
     '''
     Return the pandas dataframes (or None when not enough data)
