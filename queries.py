@@ -87,12 +87,7 @@ def get_items(where, group):
                 items = OVERSEAS_DEPARTMENTS
         else:
             data = data.get_group(group)
-            if where == "cities":
-                items = list(zip(
-                    data["station"].to_list(),
-                    data["coordinates"].to_list()))
-            else:
-                items = data.iloc[:,1].to_list()
-                if where == "distribution_pollutants":
-                    items = [e+" pollution" for e in items]
+            items = data.iloc[:,1].unique()
+            if where == "distribution_pollutants":
+                items = [e+" pollution" for e in items]
     return items
