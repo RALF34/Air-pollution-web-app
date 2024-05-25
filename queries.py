@@ -92,7 +92,7 @@ def get_items(where, group):
                     data["station"].to_list(),
                     data["coordinates"].to_list()))
             else:
-                items = data.iloc[:,0].to_list()
+                items = data.iloc[:,1].to_list()
                 if where == "distribution_pollutants":
                     items = [e+" pollution" for e in items]
     return items
