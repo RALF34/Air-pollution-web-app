@@ -88,7 +88,7 @@ with col1:
                 station),
                 **kwargs)
                 
-        if pollutant:
+        if pollution:
             pollutant = pollution.split()[0]
 
             data = queries.get_data(station, pollutant)
