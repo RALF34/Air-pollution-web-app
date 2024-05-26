@@ -88,27 +88,28 @@ with col1:
                 station),
                 **kwargs)
                 
-        pollutant = pollution.split()[0]
+        if pollutant:
+            pollutant = pollution.split()[0]
 
-        data = queries.get_data(station, pollutant)
-        for i, gb in enumerate([e.groupby("hour") for e in data]):
-            st.session_state["current_data"][i] = gb
-        update_values()
+            data = queries.get_data(station, pollutant)
+            for i, gb in enumerate([e.groupby("hour") for e in data]):
+                st.session_state["current_data"][i] = gb
+            update_values()
                 
-        if st.session_state["no_data"]:
-            st.error("No pollution data are available for the given period.")
-            st.stop()
-        else:
-            starting_date = st.slider(
-                "When does the air pollution analysis start?",
-                ending_date-timedelta(days=180),
-                ending_date,
-                ending_date-timedelta(days=90),
-                format="DD/MM/YY",
-                key="starting_date",
-                on_change=update_values)
-            st.pyplot(
-                visualization.plot_variation(
-                    st.session_state["y-values"],
-                    pollutant,
-                    station))
+            if st.session_state["no_data"]:
+                st.error("No pollution data are available for the given period.")
+                st.stop()
+            else:
+                starting_date = st.slider(
+                    "When does the air pollution analysis start?",
+                    ending_date-timedelta(days=180),
+                    ending_date,
+                    ending_date-timedelta(days=90),
+                    format="DD/MM/YY",
+                    key="starting_date",
+                    on_change=update_values)
+                st.pyplot(
+                    visualization.plot_variation(
+                        st.session_state["y-values"],
+                        pollutant,
+                        station))
