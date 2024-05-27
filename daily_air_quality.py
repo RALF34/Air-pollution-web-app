@@ -27,6 +27,7 @@ def update_values() -> None:
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
         if data:
+            df = data.get_group(hour)
             # Initialize "dictionary" which will contain the average
             # concentration values (set to zero when no data are
             # available) associated to the 24 hours of the day.
@@ -34,8 +35,8 @@ def update_values() -> None:
             for hour in data.groups.keys():
                 # Extract only air concentration values being less than
                 # "n_days" days old.
-                dates = data["date"].values[::-1]
-                values = data["value"].values[::-1]
+                dates = df["date"].values[::-1]
+                values = df["value"].values[::-1]
                 j = 0
                 limit = dates.shape[0]
                 while (
