@@ -34,18 +34,18 @@ def update_values() -> None:
             for hour in data.groups.keys():
                 # Extract only air concentration values being less than
                 # "n_days" days old.
-                history = list(zip(data["value"],data["date"]))[::-1]
+                dates = data["date"].values[::-1]
+                values = data["value"].values[::-1]
                 j = 0
-                limit = len(history)
+                limit = dates.shape[0]
                 while (
                     j < limit and 
-                    (st.session_state["starting_date"] <= history[j][1])):
+                    (st.session_state["starting_date"] <= dates[j])):
                     j += 1
                 if j == limit:
                     j -= 1
                 # Update "dictionary".
-                dictionary[str(hour)] = \
-                mean([e[0] for e in history[:j]])
+                dictionary[str(hour)] = values[:j].mean()
             st.session_state["y-values"][i] = list(dictionary.values())
         else:
             counter += 1
