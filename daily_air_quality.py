@@ -40,12 +40,12 @@ def update_values() -> None:
                 limit = df.shape[0]
                 while (
                     j < limit and 
-                    (st.session_state["starting_date"] <= df.at[j,"date"])):
+                    (st.session_state["starting_date"] <= df["date"].iloc[j])):
                     j += 1
                 if j == limit:
                     j -= 1
                 # Update "dictionary".
-                dictionary[str(hour)] = df.iloc[:j]["value"].mean()
+                dictionary[str(hour)] = df["value"].iloc[:j].mean()
             st.session_state["y-values"][i] = list(dictionary.values())
         else:
             counter += 1
