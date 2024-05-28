@@ -23,7 +23,9 @@ st.session_state["y-values"] = [None, None]
 st.session_state["first_choice"] = True
 st.session_state["no_data"] = True
     
-def update_values() -> None:
+def update_values(first_call=False) -> None:
+    start = ending_date-timedelta(days=90) \
+    if first_call else st.session_state["starting_date"]
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
         if data:
@@ -40,8 +42,7 @@ def update_values() -> None:
                 limit = df.shape[0]
                 while (
                     j < limit and 
-                    (st.session_state["starting_date"] <= \
-                    date.fromisoformat(df["date"].iloc[j]))):
+                    (start <= date.fromisoformat(df["date"].iloc[j]))):
                     j += 1
                 if j == limit:
                     j -= 1
@@ -95,7 +96,7 @@ with col1:
             data = queries.get_data(station, pollutant)
             for i, gb in enumerate([e.groupby("hour") for e in data]):
                 st.session_state["current_data"][i] = gb
-            update_values()
+            update_values(first_call=True)
                 
             if st.session_state["no_data"]:
                 st.error("No pollution data are available for the given period.")
