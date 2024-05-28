@@ -32,21 +32,20 @@ def update_values() -> None:
             # available) associated to the 24 hours of the day.
             dictionary = {str(x): 0 for x in range(24)}
             for hour in data.groups.keys():
-                df = data.get_group(hour)
-                # Extract only air concentration values being less than
-                # "n_days" days old.
-                dates = df["date"].values[::-1]
-                values = df["value"].values[::-1]
+                # Extract only air concentration values recorded after
+                # the current starting date.
+                df = data.get_group(
+                    hour).sort_values("date", ascending=False)
                 j = 0
-                limit = dates.shape[0]
+                limit = df.shape[0]
                 while (
                     j < limit and 
-                    (st.session_state["starting_date"] <= dates[j])):
+                    (st.session_state["starting_date"] <= df.at[j,"date"])):
                     j += 1
                 if j == limit:
                     j -= 1
                 # Update "dictionary".
-                dictionary[str(hour)] = values[:j].mean()
+                dictionary[str(hour)] = df.iloc[:j]["value"].mean()
             st.session_state["y-values"][i] = list(dictionary.values())
         else:
             counter += 1
