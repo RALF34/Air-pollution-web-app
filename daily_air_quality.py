@@ -40,7 +40,8 @@ def update_values() -> None:
                 limit = df.shape[0]
                 while (
                     j < limit and 
-                    (st.session_state["starting_date"] <= df["date"].iloc[j])):
+                    (st.session_state["starting_date"] <= \
+                    date.fromisoformat(df["date"].iloc[j]))):
                     j += 1
                 if j == limit:
                     j -= 1
