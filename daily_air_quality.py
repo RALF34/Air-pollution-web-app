@@ -17,7 +17,6 @@ st.write('''
     
 s = open("data/last_update.txt", "r").read()
 ending_date = date.fromisoformat(s)-timedelta(days=1)
-st.session_state["starting_date"] = ending_date-timedelta(days=90)
 st.session_state["current_data"] = [None, None]
 st.session_state["y-values"] = [None, None]
 st.session_state["first_choice"] = True
