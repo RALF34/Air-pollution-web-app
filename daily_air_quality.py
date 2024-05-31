@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from statistics import mean
 
+import numpy as np
 import streamlit as st
 
 import queries
@@ -17,14 +18,13 @@ st.write('''
     
 s = open("data/last_update.txt", "r").read()
 ending_date = date.fromisoformat(s)-timedelta(days=1)
-st.session_state["current_data"] = [None, None]
-st.session_state["y-values"] = [None, None]
-st.session_state["first_choice"] = True
+st.session_state["current_data"] = (None, None)
+st.session_state["y-values"] = (None, None)
 st.session_state["no_data"] = True
     
 def update_values(first_call=False) -> None:
-    start = ending_date-timedelta(days=90) \
-    if first_call else st.session_state["starting_date"]
+    start, end = ending_date-timedelta(days=90), ending_date \
+    if first_call else *st.session_state["boundaries"]
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
         if data:
@@ -35,18 +35,11 @@ def update_values(first_call=False) -> None:
             for hour in data.groups.keys():
                 # Extract only air concentration values recorded after
                 # the current starting date.
-                df = data.get_group(
-                    hour).sort_values("date", ascending=False)
-                j = 0
-                limit = df.shape[0]
-                while (
-                    j < limit and 
-                    (start <= date.fromisoformat(df["date"].iloc[j]))):
-                    j += 1
-                if j == limit:
-                    j -= 1
+                df = data.get_group(hour)
+                dates, values = df["date"].values, df["value"].values
+                indexes = np.where(np.logical_and(dates>=start,dates<=end))
                 # Update "dictionary".
-                dictionary[str(hour)] = df["value"].iloc[:j].mean()
+                dictionary[str(hour)] = values[indexes].mean()
             st.session_state["y-values"][i] = list(dictionary.values())
         else:
             counter += 1
@@ -88,27 +81,23 @@ with col1:
                     "distribution_pollutants",
                     station),
                     **kwargs)
-                
             if pollution:
                 pollutant = pollution.split()[0]
-
                 data = queries.get_data(station, pollutant)
                 for i, gb in enumerate([e.groupby("hour") for e in data]):
                     st.session_state["current_data"][i] = gb
                 update_values(first_call=True)
-                
+                boundaries = st.slider(
+                    "Set the analysis period",
+                    ending_date-timedelta(days=180),
+                    ending_date,
+                    value=(ending_date-timedelta(days=90),ending_date),
+                    format="DD/MM/YY",
+                    key="boundaries",
+                    on_change=update_values)
                 if st.session_state["no_data"]:
                     st.error("No pollution data are available for the given period.")
-                    st.stop()
                 else:
-                    starting_date = st.slider(
-                        "When does the air pollution analysis start?",
-                        ending_date-timedelta(days=180),
-                        ending_date,
-                        ending_date-timedelta(days=90),
-                        format="DD/MM/YY",
-                        key="starting_date",
-                        on_change=update_values)
                     st.pyplot(
                         visualization.plot_variation(
                             st.session_state["y-values"],

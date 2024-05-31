@@ -4,14 +4,6 @@ import streamlit as st
 from matplotlib import pyplot
 
 
-AIR_POLLUTANTS = {
-    "NO2": "nitrogen dioxide",
-    "SO2": "sulphur dioxide",
-    "PM2.5": "fine particles",
-    "PM10": "particles",
-    "CO": "carbone monoxide"
-}
-
 # https://www.who.int/news-room/feature-stories/detail/what-are-the-who-air-quality-guidelines
 WHO_RECOMMENDATIONS = {
     pollutant: value for (pollutant, value) in zip(
@@ -33,7 +25,9 @@ def plot_variation(
     figure, ax = pyplot.subplots()
     figure.set_size_inches(17,14)
     x = [str(x)+"h00" for x in range(24)]
-    colors = ("dodgerblue","cyan")
+    highest_value = max(values[0]+values[1])
+    ax.set_ylim(0,highest_value)
+    colors = ("dodgerblue", "cyan")
     labels = ("Working_days","Week_end")
 
     def contains_zero(lists: List[List[float]]) -> bool:
@@ -67,30 +61,30 @@ def plot_variation(
     else:
         ax.scatter(x, values[0], c="dodgerblue", label="Working days")
         ax.scatter(x, values[1], marker="s", c="cyan", label="Week-end")
-    # Compute four threshold values based on the corresponding WHO
-    # recommendation (will be used later to split the graph into
-    # colored zones, improving readibility and understanding of the
-    # displayed pollution data).
-    thresholds = [
-        (2*x/3)*WHO_RECOMMENDATIONS[pollutant]
-        for x in range(1,4)]
-    ax.plot(
-        range(24),
-        [WHO_RECOMMENDATIONS[pollutant]]*24,
-        color="violet",
-        ls="--",
-        lw=1.7,
-        label="Recommended daily \naverage (WHO)")
-    # Set the upper bound value on the y-axis.
-    default_bound = 2 * WHO_RECOMMENDATIONS[pollutant]
-    highest_value = max(values[0])
-    upper_bound = default_bound if highest_value <= default_bound \
-    else highest_value
-    ax.set_ylim(0,upper_bound)
+    unit = ("m" if pollutant == "CO" else "µ")+"g/m³"
+    WHO_value = WHO_RECOMMENDATIONS[pollutant]
+    thresholds = [(2*x/3)*WHO_value for x in range(1,4)]
+    if ax.get_ylim[1] > WHO_value:
+        ax.plot(
+            range(24),
+            [WHO_value]*24,
+            color="violet",
+            ls="--",
+            lw=1.7,
+            label="Recommended daily \naverage (WHO)")
+        ax.legend(loc="upper right")
+    else:
+        ax.text(
+            1,
+            1,
+            f"Recommended daily average (WHO): {WHO_value} {unit}",
+            ha="right",
+            va="top")
     # Split the graph into three colored zones.
-    colors = ["limegreen","orange","red"]
+    colors = ["limegreen","orange","red","magenta"]
+    j = 0
     y_min = 0
-    for j in range(3):
+    while thresholds[j] < highest_value:
         ax.fill_between(
             list(range(24)),
             thresholds[j],
@@ -98,25 +92,17 @@ def plot_variation(
             color=colors[j],
             alpha=0.1)
         y_min = thresholds[j]
-    # Add a fourth zone if one or more values are above the highest
-    # set threshold.
-    if highest_value > thresholds[2]:
-        ax.fill_between(
-            list(range(24)),
-            upper_bound,
-            y2=thresholds[2],
-            color="magenta",
-            alpha=0.1)
+        j += 1
+    ax.fill_between(
+        list(range(24)),
+        highest_value,
+        y2=y_min,
+        color=colors[j],
+        alpha=0.1)
     ax.set_ylabel(
         "Air"+" "*14+"\nconcentration"+" "*14+
-        "\nof "+pollutant+" "*14+"\n("+
-        ("µ" if pollutant != "CO" else "m")+"g/m³)"+" "*14,
+        "\nof "+pollutant+" "*14+"\n("+ unit +") "*14,
         rotation="horizontal",
         size="large")
-    ax.legend(loc="upper right")
-    ax.set_title(
-        "Average daily "+AIR_POLLUTANTS[pollutant]+" pollution\n\
-        recorded at :\n"+station,
-        size="x-large",
-        ha="center")
+
     return figure
