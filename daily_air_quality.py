@@ -23,7 +23,7 @@ st.session_state["y-values"] = (None, None)
 st.session_state["no_data"] = True
     
 def update_values(first_call=False) -> None:
-    start, end = ending_date-timedelta(days=90), ending_date if first_call 
+    start, end = ending_date-timedelta(days=90), ending_date if first_call \
     else st.session_state["boundaries"][0], st.session_state["boundaries"][1]
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
