@@ -7,7 +7,7 @@ from matplotlib import pyplot
 # https://www.who.int/news-room/feature-stories/detail/what-are-the-who-air-quality-guidelines
 WHO_RECOMMENDATIONS = {
     pollutant: value for (pollutant, value) in zip(
-        AIR_POLLUTANTS.keys(),
+        ["NO2","SO2","PM2.5","PM10","CO"],
         [25,40,15,45,4]
     )
 }
