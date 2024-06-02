@@ -18,8 +18,8 @@ st.write('''
     
 s = open("data/last_update.txt", "r").read()
 ending_date = date.fromisoformat(s)-timedelta(days=1)
-st.session_state["current_data"] = (None, None)
-st.session_state["y-values"] = (None, None)
+st.session_state["current_data"] = [None, None]
+st.session_state["y-values"] = [None, None]
 st.session_state["no_data"] = True
     
 def update_values(first_call=False) -> None:
