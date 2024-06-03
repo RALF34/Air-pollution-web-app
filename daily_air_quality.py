@@ -24,9 +24,11 @@ st.session_state["no_data"] = True
     
 def update_values(first_call=False) -> None:
     if first_call:
-        start, end = ending_date-timedelta(days=90), ending_date
-    else: 
-        start, end = st.session_state["boundaries"][0], st.session_state["boundaries"][1]
+        start = np.datetime64(ending_date-timedelta(days=90))
+        end = np.datetime64(ending_date)
+    else:
+        start = np.datetime64(st.session_state["boundaries"][0])
+        end = np.datetime64(st.session_state["boundaries"][1])
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
         if data:
@@ -38,7 +40,8 @@ def update_values(first_call=False) -> None:
                 # Extract only air concentration values recorded after
                 # the current starting date.
                 df = data.get_group(hour)
-                dates, values = df["date"].values, df["value"].values
+                dates = np.array(df["date"].to_list(), dtype="datetime64")
+                values = df["value"].values
                 indexes = np.where(np.logical_and(dates>=start,dates<=end))
                 # Update "dictionary".
                 dictionary[str(hour)] = values[indexes].mean()
