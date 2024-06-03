@@ -19,16 +19,11 @@ st.write('''
 s = open("data/last_update.txt", "r").read()
 ending_date = date.fromisoformat(s)-timedelta(days=1)
 st.session_state["current_data"] = [None, None]
-st.session_state["y-values"] = [None, None]
 st.session_state["no_data"] = True
     
-def update_values(first_call=False) -> None:
-    if first_call:
-        start = np.datetime64(ending_date-timedelta(days=90))
-        end = np.datetime64(ending_date)
-    else:
-        start = np.datetime64(st.session_state["boundaries"][0])
-        end = np.datetime64(st.session_state["boundaries"][1])
+def get_values(boundaries):
+    y_values = [None, None]
+    start, end = boundaries
     counter = 0
     for i, data in enumerate(st.session_state["current_data"]):
         if data:
@@ -45,11 +40,12 @@ def update_values(first_call=False) -> None:
                 indexes = np.where(np.logical_and(dates>=start,dates<=end))
                 # Update "dictionary".
                 dictionary[str(hour)] = values[indexes].mean()
-            st.session_state["y-values"][i] = list(dictionary.values())
+            y_values[i] = list(dictionary.values())
         else:
             counter += 1
     if counter < 2:
         st.session_state["no_data"] = False
+    return y_values
     
 col1, col2 = st.columns((5,1))
 with col1:
@@ -91,20 +87,14 @@ with col1:
                 data = queries.get_data(station, pollutant)
                 for i, gb in enumerate([e.groupby("hour") for e in data]):
                     st.session_state["current_data"][i] = gb
-                update_values(first_call=True)
                 boundaries = st.slider(
                     "Set the analysis period",
                     ending_date-timedelta(days=180),
                     ending_date,
                     value=(ending_date-timedelta(days=90),ending_date),
-                    format="DD/MM/YY",
-                    key="boundaries",
-                    on_change=update_values)
+                    format="DD/MM/YY")
+                y_values = get_values(boundaries)
                 if st.session_state["no_data"]:
                     st.error("No pollution data are available for the given period.")
                 else:
-                    st.pyplot(
-                        visualization.plot_variation(
-                            st.session_state["y-values"],
-                            pollutant,
-                            station))
+                    visualization.plot_variation(y_values,pollutant,station)
