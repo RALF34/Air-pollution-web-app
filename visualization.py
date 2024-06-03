@@ -64,7 +64,7 @@ def plot_variation(
     unit = ("m" if pollutant == "CO" else "µ")+"g/m³"
     WHO_value = WHO_RECOMMENDATIONS[pollutant]
     thresholds = [(2*x/3)*WHO_value for x in range(1,4)]
-    if ax.get_ylim[1] > WHO_value:
+    if ax.get_ylim()[1] > WHO_value:
         ax.plot(
             range(24),
             [WHO_value]*24,
