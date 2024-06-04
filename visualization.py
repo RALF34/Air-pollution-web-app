@@ -71,15 +71,15 @@ def plot_variation(
             color="violet",
             ls="--",
             lw=1.7,
-            label="Recommended daily \naverage (WHO)")
-        ax.legend(loc="upper right")
+            label="Highest recommended \naverage (WHO)")
     else:
         ax.text(
-            1,
-            1,
-            f"Recommended daily average (WHO): {WHO_value} {unit}",
+            ax.get_xlim()[1],
+            ax.get_ylim()[1],
+            f"Highest recommended average (WHO): {WHO_value} {unit}",
             ha="right",
             va="top")
+    ax.legend(loc="upper right")
     # Split the graph into three colored zones.
     colors = ["limegreen","orange","red","magenta"]
     j = 0
@@ -100,8 +100,8 @@ def plot_variation(
         color=colors[j],
         alpha=0.1)
     ax.set_ylabel(
-        "Air"+" "*14+"\nconcentration"+" "*14+
-        "\nof "+pollutant+" "*14+"\n("+ unit +") "*14,
+        "Air"+" "*14+"\nquantity"+" "*14+
+        "\nof "+pollutant+" "*14+"\n("+ unit +")"+" "*14,
         rotation="horizontal",
         size="large")
 
