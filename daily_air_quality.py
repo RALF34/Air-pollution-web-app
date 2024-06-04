@@ -97,4 +97,5 @@ with col1:
                 if st.session_state["no_data"]:
                     st.error("No pollution data are available for the given period.")
                 else:
-                    visualization.plot_variation(y_values,pollutant,station)
+                    st.pyplot(
+                        visualization.plot_variation(y_values,pollutant,station))
