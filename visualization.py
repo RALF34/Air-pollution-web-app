@@ -14,8 +14,7 @@ WHO_RECOMMENDATIONS = {
 
 def plot_variation(
     values: List[List[float]],
-    pollutant: str,
-    station: str) -> pyplot.figure:
+    pollutant: str) -> pyplot.figure:
     '''
     Generate the graph showing average daily variation (obtained using
     average concentrations recorded at each of the 24 hours of the day, 
@@ -26,7 +25,11 @@ def plot_variation(
     figure.set_size_inches(17,14)
     x = [str(x)+"h00" for x in range(24)]
     highest_value = max(values[0]+values[1])
-    ax.set_ylim(0,highest_value)
+    WHO_value = WHO_RECOMMENDATIONS[pollutant]
+    upper_bound = (
+        highest_value if highest_value > (8/7)*WHO_value else
+        (8/7)*WHO_value)
+    ax.set_ylim(0,upper_bound)
     colors = ("dodgerblue", "cyan")
     labels = ("Working_days","Week_end")
 
@@ -62,29 +65,20 @@ def plot_variation(
         ax.scatter(x, values[0], c="dodgerblue", label="Working days")
         ax.scatter(x, values[1], marker="s", c="cyan", label="Week-end")
     unit = ("m" if pollutant == "CO" else "µ")+"g/m³"
-    WHO_value = WHO_RECOMMENDATIONS[pollutant]
     thresholds = [(2*x/3)*WHO_value for x in range(1,4)]
-    if ax.get_ylim()[1] > WHO_value:
-        ax.plot(
-            range(24),
-            [WHO_value]*24,
-            color="violet",
-            ls="--",
-            lw=1.7,
-            label="Highest recommended \naverage (WHO)")
-    else:
-        ax.text(
-            ax.get_xlim()[1],
-            ax.get_ylim()[1],
-            f"Highest recommended average (WHO): {WHO_value} {unit}",
-            ha="right",
-            va="top")
+    ax.plot(
+        range(24),
+        [WHO_value]*24,
+        color="violet",
+        ls="--",
+        lw=1.7,
+        label="Highest recommended \naverage (WHO)")
     ax.legend(loc="upper right")
     # Split the graph into three colored zones.
     colors = ["limegreen","orange","red","magenta"]
     j = 0
     y_min = 0
-    while thresholds[j] < highest_value:
+    while thresholds[j] < upper_bound:
         ax.fill_between(
             list(range(24)),
             thresholds[j],
@@ -95,7 +89,7 @@ def plot_variation(
         j += 1
     ax.fill_between(
         list(range(24)),
-        highest_value,
+        upper_bound,
         y2=y_min,
         color=colors[j],
         alpha=0.1)
