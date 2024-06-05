@@ -98,4 +98,4 @@ with col1:
                     st.error("No pollution data are available for the given period.")
                 else:
                     st.pyplot(
-                        visualization.plot_variation(y_values,pollutant,station))
+                        visualization.plot_variation(y_values,pollutant))
